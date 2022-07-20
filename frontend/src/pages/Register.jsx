@@ -1,5 +1,11 @@
 import  {FaUser} from 'react-icons/fa'
 import{useState,useEffect} from 'react'
+import {useSelector,useDispatch} from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import {toast} from 'react-toastify'
+import {register,reset} from '../features/auth/authSlice'
+import React from 'react'
+import Spinner from '../components/Spinner'
 
 function Register() {
 
@@ -11,6 +17,26 @@ function Register() {
   })
   const {name,email,password,password2}=formData
 
+  const navigate=useNavigate()
+  const dispatch=useDispatch()
+
+  const {user,isLoading,isSuccess,message,isError}=useSelector((state)=>state.auth)
+
+
+  useEffect(()=>{
+
+    if(isError){
+      toast.error(message)
+    }
+
+    if(isSuccess||user) {
+      navigate('/')
+    }
+    
+    dispatch(reset())
+
+  },[user,isError,isSuccess,message,navigate,dispatch])
+
   const  onChange=(e)=>{
       setFormData((prevState)=>({
         ...prevState,
@@ -21,8 +47,26 @@ function Register() {
 
   const onSubmit=(e)=>{
     e.preventDefault();
+    
+    if(password!==password2){
+      toast.error('Passwords are not matched')
+    }
+    else{
+      const userData={
+        name,
+        email,
+        password
+      }
+
+      dispatch(register(userData))
+    }
+
   }
 
+  if(isLoading) {
+    return <Spinner/>
+  }
+  
   return (
     <>
     <section className="heading">
@@ -46,7 +90,7 @@ function Register() {
 
         <div className="form-group">
           
-            <input type="text" id="email" name="email"  className="form-control" value={email} onChange={onChange} placeholder="email" />
+            <input type="email" id="email" name="email"  className="form-control" value={email} onChange={onChange} placeholder="email" />
           
         </div>
 
@@ -64,7 +108,7 @@ function Register() {
 
         <div className="form-group">
         
-            <button type="submit" className='btn btn-block' on>
+            <button type="submit" className='btn btn-block'>
               Submit
             </button>
         

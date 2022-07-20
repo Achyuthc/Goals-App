@@ -1,16 +1,15 @@
 const express=require('express')
+const path=require('path')
 const colors=require('colors')
 const dotenv=require('dotenv').config()
-
-const app=express();
-
-
 const connectDB=require('./config/db')
 const {errorHandler}=require('./middleware/errorMiddleware');
 
 const port=process.env.PORT||5000;
-
 connectDB();
+const app=express();
+
+
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 
@@ -20,4 +19,4 @@ app.use('/api/users',require('./routes/userRoutes'))
 
 app.use(errorHandler);
 
-app.listen(port,()=>console.log("server is running"))
+app.listen(port,()=>console.log("server is running ${port}"))

@@ -38,16 +38,15 @@ const registerUser=asyncHandler(  async(req,res)=>{
     if(user)
     {
         res.status(201).json({
-            message:'user created',
-            _id:user.id,
+            _id:user._id,
             name:user.name,
-            email:email,
-            token:generateToken(id),
+            email:user.email,
+            token:generateToken(user._id),
         })
     }
     else{
         res.status(400)
-        throw new Error('Invalid user Data')
+        throw new Error('Invalid Credentials')
     }
     
 })
@@ -57,7 +56,7 @@ const registerUser=asyncHandler(  async(req,res)=>{
 //route post /api/users/login
 //@access Public
 const loginUser=asyncHandler(async(req,res)=>{
-    const {name,email,password}=req.body
+    const {email,password}=req.body
 
     //check for the user details
     const user=await User.findOne({email})
@@ -65,7 +64,7 @@ const loginUser=asyncHandler(async(req,res)=>{
     if(user&&await bcrypt.compare(password,user.password))
     {
         res.status(200).json({
-            _id:user.id,
+            _id:user._id,
             name:user.name,
             email:email,
             token:generateToken(user._id)
@@ -75,7 +74,7 @@ const loginUser=asyncHandler(async(req,res)=>{
         res.status(400)
         throw new Error('Invalid credentials')
     }
-    res.status(200).json({message:"logged in "})
+    
 })
 
 //@desc  getMe 
@@ -83,15 +82,7 @@ const loginUser=asyncHandler(async(req,res)=>{
 //@access Public
 
 const getMe=asyncHandler(async(req,res)=>{
-    const {_id,name,email}=await User.findById(req.user.id)
-
-
-
-    res.status(200).json({
-        id:_id,
-        name,
-        email
-    })
+    res.status(200).json(req.user)
 })
 
 const generateToken=(id)=>{
